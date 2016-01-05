@@ -1,0 +1,50 @@
+#!/bin/bash
+
+#PBS -r n
+#PBS -l walltime=420:00:00
+#PBS -l procs=16
+#PBS -m bea
+#PBS -M theajobreports@gmail.com
+
+echo "prog started at: `date`"
+
+homeDir="/home.westgrid/thea/watershed/viralShotgunHiSeq/VDNA/kmerJellyfish/"
+cd $homeDir
+kmerLength="10"
+distMethod="manhattan"
+suffix="VDNA_515k"
+# to make input file:
+# find /home.westgrid/thea//watershed/viralShotgunHiSeq/VcDNA/reads/postQC-RemovedRRNA-RNAViruses -name "*1k*" ! -size 0 > inputFiles-MEGAN_RNAViruses_1k.txt
+inputFiles="/home.westgrid/thea/watershed/HiSeq.GSC.20140506-all/VDNA/kmerJellyfish/inputFiles_VDNA_515k.txt"
+#"/home.westgrid/thea/watershed/viralShotgunHiSeq/VcDNA/kmerJellyfish/MEGAN_RNAViruses/inputFiles-MEGAN_RNAViruses_1k.txt"
+
+kmerDir=$homeDir"/k"$kmerLength"mer_"$suffix
+logFile=$kmerDir"/getDist.log"
+scriptDir="/home.westgrid/thea/scripts/kmerAnalysisDist/"
+
+mkdir $kmerDir
+cd $kmerDir
+
+echo "" > $logFile
+
+echo "Counting kmers..." >> $logFile
+bash $scriptDir/0_getKmers.sh "$inputFiles" $kmerLength $kmerDir
+
+echo "Discarding per-file singleton kmers..." >> $logFile
+bash $scriptDir/0b_filterKmers.sh >> $logFile
+
+echo "Collecting keys..." >> $logFile
+bash $scriptDir/1_collectKeys.sh >> $logFile
+
+echo "Completing vectors with zero counts..." >> $logFile
+bash $scriptDir/2_completeCountVectors.sh >> $logFile
+
+echo "Merging kmer count vectors to one file..." >> $logFile
+bash $scriptDir/3_mergeCompleteCountVectors.sh >> $logFile
+
+echo "Calculating distances..." >> $logFile
+Rscript $scriptDir/4_calculatePairwiseDistances.R $kmerLength $distMethod "all.Counts.min2.minSum10.txt" >> $logFile
+
+
+echo "prog finished at: `date`"
+echo "prog finished with error code: $?"
