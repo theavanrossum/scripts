@@ -1,0 +1,51 @@
+#!/bin/bash
+
+#PBS -r n
+#PBS -l walltime=180:00:00
+#PBS -m bea
+#PBS -M theajobreports@gmail.com
+
+# need Xming to make plots
+
+
+mappingFile=/home.westgrid/thea/frogProject/qiimeAll/pilotNatMetPesc-228-252/masterMappingFile_228-252_corrected_pilotNatMetPesc.txt
+workDir=/home.westgrid/thea/frogProject/qiimeAll/pilotNatMetPesc-228-252
+referenceDB=/home.westgrid/thea/databases/qiime/greenGenes/gg_13_8_otus/rep_set/97_otus.fasta
+paramFile=/home.westgrid/thea/frogProject/qiimeAll/qiimeParams.txt
+
+echo "prog started at: `date`"
+
+cd $workDir
+
+# Pre-processing
+echo "Check mapping file"
+#rm -rf mapping_output ; validate_mapping_file.py -m $mappingFile -o $workDir/mapping_output -v
+#cp $workDir/mapping_output/*_corrected.txt $mappingFile
+
+echo "Make links to input sequences"
+inputDir="$workDir/inputReads"
+mkdir $inputDir
+cd $inputDir
+grep -v "^#" $mappingFile | cut -f 4 | sed 's/^/ln -s /' | sed 's/$/ ./' > makeLinkCmds.sh
+bash makeLinkCmds.sh
+cd $workDir
+
+echo "Prepare amplicon sequences"
+add_qiime_labels.py -i $inputDir -m $mappingFile -c InputFileName -n 1 -o $workDir/combinedInput
+
+# otus
+echo "Cluster sequences"
+pick_open_reference_otus.py -o $workDir/otus -i $workDir/combinedInput/combined_seqs.fna -p $paramFile
+
+cd otus
+ln -s otu_table_mc2_w_tax_no_pynast_failures.biom otu_table.biom
+cd ..
+
+echo "Summarize biom file"
+biom summarize-table -i $workDir/otus/otu_table.biom -o $workDir/otus/otu_table_summary.txt
+
+echo "Make JSON version of biom file for phyloseq"
+biom convert -i $workDir/otus/otu_table.biom -o $workDir/otus/otu_table_json.biom --table-type="OTU table" --to-json
+
+echo "prog finished at: `date`"
+echo "prog finished with error code: $?"

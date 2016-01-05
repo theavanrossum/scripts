@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#PBS -r n
+#PBS -l walltime=20:00:00
+#PBS -l pmem=2000m
+#PBS -m bea
+#PBS -M theajobreports@gmail.com
+
+cd /home.westgrid/thea/scripts
+echo "prog started at: `date`"
+echo "blastx -db ~/databases/nr -query /home.westgrid/thea/watershed/MiSeq.BCCDC.20131105/reads/2_trimAdapters/Haka-CG_R1_HQ_rmAdap_pair.fasta"
+blastx -db ~/databases/nr -query /home.westgrid/thea/watershed/MiSeq.BCCDC.20131105/reads/2_trimAdapters/Haka-CG_R1_HQ_rmAdap_pair.fasta
+echo "prog finished at: `date`"
+echo "prog finished with error code: $?"

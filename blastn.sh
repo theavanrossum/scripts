@@ -1,0 +1,1 @@
+nohup ~/programs/blastn/ncbi-blast-2.2.29+/bin/blastn -db nt -query final.contigs.fa.longest10.fasta -outfmt "6 qseqid qcovs sacc length pident stitle" -num_alignments 1 -num_descriptions 1 -out longest10.bn.out
