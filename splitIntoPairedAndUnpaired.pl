@@ -117,11 +117,11 @@ for(my $i = 0; $i<=$#idArr; $i++){
     }
 }
 
-# use biopieces to grab the sequences using their ids
-`read_fastq -e base_33 -i $in_file1 | grab -E $r1pairIds -k SEQ_NAME | write_fastq -o $r1pairFq -x `;
-`read_fastq -e base_33 -i $in_file1 | grab -E $r1unpairIds -k SEQ_NAME | write_fastq -o $r1unpairFq -x`;
-`read_fastq -e base_33 -i $in_file2 | grab -E $r2pairIds -k SEQ_NAME | write_fastq -o $r2pairFq -x `;
-`read_fastq -e base_33 -i $in_file2 | grab -E $r2unpairIds -k SEQ_NAME | write_fastq -o $r2unpairFq -x`;
+# use seqtk to grab the sequences using their ids (biopieces is way too slow)
+`/home/tva4/programs/seqtk/seqtk subseq $in_file1 $r1pairIds > $r1pairFq;`;
+`/home/tva4/programs/seqtk/seqtk subseq $in_file2 $r2pairIds > $r2pairFq;`;
+`/home/tva4/programs/seqtk/seqtk subseq $in_file1 $r1unpairIds > $r1unpairFq;`;
+`/home/tva4/programs/seqtk/seqtk subseq $in_file2 $r2unpairIds > $r2unpairFq;`;
 
 # delete the id files
 #`rm $r1pairIds $r1unpairIds $r2pairIds $r2unpairIds`;
