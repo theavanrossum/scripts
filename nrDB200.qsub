@@ -1,0 +1,12 @@
+#!/bin/bash
+
+#PBS -r n
+#PBS -l walltime=20:00:00
+#PBS -l pmem=700m
+#PBS -m bea
+#PBS -M theajobreports@gmail.com
+
+cd /home/tva4/scripts
+echo "prog started at: `date`"
+/home/tva4/programs/rapsearch/RAPSearch2.10_64bits/bin/prerapsearch -d nr -n nr_200 -s 200
+echo "prog finished at: `date`"

@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#PBS -r n
+#PBS -l walltime=20:00:00
+#PBS -l pmem=2000m
+#PBS -m bea
+#PBS -M theajobreports@gmail.com
+
+cd /home/tva4/scripts
+echo "prog started at: `date`"
+echo "cat BACR1.fasta | grep -v ">" | wc > ~/data/Illumina_Feb8_2013/readsNoAdap-trimQfiltNfiltL/pairedFastaRenamed/justR1/BACR1.count.txt"
+cat BACR1.fasta | grep -v ">" | wc > ~/data/Illumina_Feb8_2013/readsNoAdap-trimQfiltNfiltL/pairedFastaRenamed/justR1/BACR1.count.txt
+echo "prog finished at: `date`"
+echo "prog finished with error code: $?"

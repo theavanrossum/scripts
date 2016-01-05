@@ -1,0 +1,15 @@
+#!/bin/bash
+
+#PBS -r n
+#PBS -l walltime=20:00:00
+#PBS -l pmem=2000m
+#PBS -m bea
+#PBS -M theajobreports@gmail.com
+#PBS -A fxa-275-ab 
+
+cd /home/tva4/scripts
+echo "prog started at: `date`"
+echo "gunzip ~/data/MiSeq.BCCDC.20131105/reads/raw/*.gz"
+gunzip ~/data/MiSeq.BCCDC.20131105/reads/raw/*.gz
+echo "prog finished at: `date`"
+echo "prog finished with error code: $?"

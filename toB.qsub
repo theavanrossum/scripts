@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#PBS -r n
+#PBS -l walltime=20:00:00
+#PBS -l pmem=2000m
+#PBS -m bea
+#PBS -M theajobreports@gmail.com
+cd /home/tva4/scripts
+echo "prog started at: `date`"
+echo "for f in min30aa/*.m8; do awk -f RAPSearch2_to_BLAST.awk  > .blast; done"
+for f in min30aa/*.m8; do awk -f RAPSearch2_to_BLAST.awk  > .blast; done
+echo "prog finished at: `date`"
+echo "prog finished with error code: $?"

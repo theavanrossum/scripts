@@ -1,0 +1,13 @@
+#!/bin/bash
+
+#PBS -r n
+#PBS -l walltime=20:00:00
+#PBS -l procs=20
+#PBS -l pmem=700m
+#PBS -m bea
+#PBS -M theajobreports@gmail.com
+
+cd /home/tva4/scripts
+echo "prog started at: `date`"
+ bash ~/data/Illumina_Feb8_2013/trimBySequence/trimBySequence_biopieces.sh /home/lairdm/scratch/watershed/data/LiveData.20130206/HI.0622.001.N701_S501.BAC_010_R1.fastq BAC010
+echo "prog finished at: `date`"

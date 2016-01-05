@@ -1,0 +1,14 @@
+#!/bin/bash
+
+#PBS -r n
+#PBS -l walltime=20:00:00
+#PBS -l pmem=2000m
+#PBS -m bea
+#PBS -M theajobreports@gmail.com
+
+cd /home/tva4/scripts
+echo "prog started at: `date`"
+echo "bash ~/data/MiSeq.BCCDC.20131009/reads/raw/catThem.sh"
+bash ~/data/MiSeq.BCCDC.20131009/reads/raw/catThem.sh
+echo "prog finished at: `date`"
+echo "prog finished with error code: $?"
