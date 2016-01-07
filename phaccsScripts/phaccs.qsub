@@ -1,0 +1,76 @@
+#!/bin/bash
+
+#PBS -r n
+#PBS -l walltime=200:00:00
+#PBS -l pmem=2000m
+#PBS -l procs=1
+#PBS -m bea
+#PBS -M theajobreports@gmail.com
+
+sampleID="${SAMPLE_ID}"
+csp_file="${CSP_FILE}"
+genomeSize="${GENOME_SIZE}"
+resultsDir="${RESULTS_DIR}"
+genomeSizeK="${GENOME_SIZE_K}"
+
+
+echo "prog started at: `date`"
+
+#csp_file="/home/tva4/watershedMetagenomics/analysis/viral/VDNA/phaccs/circonspect_defaults_ADS-PDS.csp"
+basename="'$sampleID'"
+outputFile="phaccs_$sampleID-ags"$genomeSizeK"k.txt"
+outputDir="$resultsDir/$sampleID"
+
+mkdir $outputDir
+cd $outputDir
+
+#get the number of input files
+numberOfInputFiles=$(grep -c "# Circonspect" $csp_file)
+echo $numberOfInputFiles
+
+phaccsVars="csp_file contigspecs seqlengths overlaplengths numrepeats genlengths scenarios min_g max_g opt_mode sync basename detailed_txt detailed_htm debugging error_values error_graph abundance_values abundance_graph abundance_graph_log"
+
+contigspecs=""
+seqlengths=""
+overlaplengths=""
+numrepeats=""
+genlengths=$(for i in `seq 1 $numberOfInputFiles`; do echo -n "$genomeSize "; done)  #a vector with the average genome size for each contig spectrum "11000 13000"
+scenarios="'power', 'exponential', 'logarithmic', 'niche_preemption', 'broken_stick', 'lognormal'"
+min_g="1" #number of genotypes to search (range of genotypes)
+max_g="1000000" #number of genotypes to search (range of genotypes)
+opt_mode="'ori'" #specifies optimization mode to use for the search:
+sync="1" #sort the models according to the scenario that is overall best for all spectra. D=no 
+#basename="'D'" #prefix to use for the output files [D: 'phaccs']
+detailed_txt="'D'" #output details of the results in a text file (1=yes, 0=no [D])
+detailed_htm="1" #output details of the results in an HTML file (1=yes, 0=no [D])
+debugging="0" #output computation details on screen for debugging (1=yes, 0=no [D])
+error_values="0" #save the detail of the minimization in a file (1=yes, 0=no [D])
+error_graph="0" #display of an error minimimization graph (1=yes, 0=no [D])
+abundance_values="1" #save the rank-abundance values in a file (1=yes, 0=no [D])
+abundance_graph="0" #display of a rank-abundance graph (1=yes, 0=no [D])
+abundance_graph_log="0" #display of a rank-abundance graph with log scale (1=yes, 0=no [D])
+
+echo ""
+echo "=== JOB VARIABLES ==="
+echo "Sample ID: $sampleID"
+echo "CSP file:  $csp_file"
+
+echo ""
+echo "=== PHACCS VARIABLES ==="
+for var in $phaccsVars; do
+      eval a=\$$var
+      echo "$var = $a"
+done
+
+echo""
+echo "=== PHACCS CMD ==="
+
+phaccsCmd="addpath(genpath('/home/tva4//programs/phaccs/PHACCS-113')); savepath(); results = phaccs(['$csp_file'], [$contigspecs], [$seqlengths], [$overlaplengths], [$numrepeats], [$genlengths], {$scenarios}, [$min_g], [$max_g], [$opt_mode], [$sync], [$basename], [$detailed_txt], [$detailed_htm], [$debugging], [$error_values], [$error_graph], [$abundance_values], [$abundance_graph], [$abundance_graph_log]); exit;"
+
+echo "matlab -nodesktop -nodisplay -nosplash -r $phaccsCmd > $outputFile"
+
+matlab -singleCompThread  -nodesktop -nodisplay -nosplash -r "addpath(genpath('/home/tva4//programs/phaccs/PHACCS-113')); savepath(); results = phaccs(['$csp_file'], [$contigspecs], [$seqlengths], [$overlaplengths], [$numrepeats], [$genlengths], {$scenarios}, [$min_g], [$max_g], [$opt_mode], [$sync], [$basename], [$detailed_txt], [$detailed_htm], [$debugging], [$error_values], [$error_graph], [$abundance_values], [$abundance_graph], [$abundance_graph_log]); exit;" > $outputFile
+
+
+echo "prog finished at: `date`"
+echo "prog finished with error code: $?"
