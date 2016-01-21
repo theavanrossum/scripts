@@ -1,0 +1,1 @@
+/home.westgrid/thea/scripts/getSequenceLengthsFromFasta.py

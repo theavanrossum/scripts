@@ -1,0 +1,13 @@
+
+These scripts are meant to work in this order (I could make a nice pipeline if the mood strikes...)
+All files need to be edited before running to set params - like file names and analysis options
+
+#bash getContigSampleCounts.sh # gets per-sample contig abundance counts from sam file
+
+#Rscript longToWide_cast.R # makes a contig x sample table from the output of "getContigSampleCounts.sh"
+
+#Rscript rarefactionRepeated.R # runs a repeated rarefaction of the results from "longToWide_cast.R" and averages counts across runs
+
+#python getSequenceLengthsFromFasta.py # gets the sequence lengths for each contig
+
+#Rscript normaliseAbundanceByContigLength.R # divides the contig/sample abundance values (from "rarefactionRepeated.R") by the contig lengths (from getSequenceLengthsFromFasta.py)
