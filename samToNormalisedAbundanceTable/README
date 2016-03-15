@@ -2,6 +2,8 @@
 These scripts are meant to work in this order (I could make a nice pipeline if the mood strikes...)
 All files need to be edited before running to set params - like file names and analysis options
 
+May have to explicitly use /home.westgrid/thea/programs/R/R-3.2.1/bin/Rscript (phyloseq requires R v3+)
+
 #bash getContigSampleCounts.sh # gets per-sample contig abundance counts from sam file
 
 #Rscript longToWide_cast.R # makes a contig x sample table from the output of "getContigSampleCounts.sh"

@@ -16,7 +16,7 @@ BEGIN{ OFS="";
           else print "Unclassified" "\t"
        }
   print "\n"
-}' |sed 's/\t$//' | paste - <(cut -f1 $MEGAN_FILE | awk 'BEGIN{print "Contigs"}{print $0}') > $MEGAN_FILE.formatted.txt
+}' |sed 's/\t$//' | paste - <(cut -f1 $MEGAN_FILE | awk 'BEGIN{print "Contig"}{print $0}') > $MEGAN_FILE.formatted.txt
 
 #> $MEGAN_FILE.taxa.txt
 #paste -d"" $MEGAN_FILE.taxa.txt $MEGAN_FILE.contigs.txt > $MEGAN_FILE.formatted.txt

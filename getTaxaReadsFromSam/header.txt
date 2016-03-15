@@ -1,0 +1,1 @@
+contigID	SampleNumber	SiteNamePub	DataType	Count
