@@ -1,0 +1,152 @@
+#!/bin/bash
+
+#PBS -r n
+#PBS -l walltime=180:00:00
+#PBS -m bea
+#PBS -M theajobreports@gmail.com
+#PBS -l procs=24
+
+fastqDir=/home.westgrid/thea/kevinRey/16S/firstPass/inputFastq
+workDir=/home.westgrid/thea/kevinRey/16S/firstPass
+mappingFileKeepChimeras=$workDir/fasta_files/mappingFile_keepChimeras.txt
+mappingFileNonChimeras=$workDir/non_chimeras/mappingFile_nonChimeras.txt
+
+scriptDir=~/programs/microbiome_helper/v20170118
+
+rdpRefUDB=/home.westgrid/thea/databases/ribosomal/RDP/trainset14_032015.rdp/trainset14_032015.rdp.fasta
+
+refFasta=/home.westgrid/thea/programs/anaconda/lib/python2.7/site-packages/qiime_default_reference/gg_13_8_otus/rep_set/97_otus.fasta
+refTaxa=/home.westgrid/thea/programs/anaconda/lib/python2.7/site-packages/qiime_default_reference/gg_13_8_otus/taxonomy/97_otu_taxonomy.txt
+refDB=/home.westgrid/thea/databases/qiime/greenGenes/gg_13_8_otus/rep_set/97_otus
+clusteringLevel=0.97
+
+threads=12
+
+cd $workDir
+
+echo "pick_otus:threads $threads" > clustering_params.txt
+echo "pick_otus:sortmerna_coverage 0.8" >> clustering_params.txt
+echo "pick_otus:sortmerna_db $refDB" >> clustering_params.txt
+echo "pick_otus:similarity $clusteringLevel" >> clustering_params.txt
+echo "assign_taxonomy:reference_seqs_fp $refFasta" >> clustering_params.txt
+echo "assign_taxonomy:id_to_taxonomy_fp $refTaxa" >> clustering_params.txt
+
+if false; then
+
+#Run FastQC to allow manual inspection of the quality of sequences
+# on all files at once
+mkdir fastqc_out
+mkdir fastqc_out/raw
+mkdir fastqc_out/raw/fastqc_out_combined
+cat ${fastqDir}/*fastq | fastqc -t $threads stdin -o fastqc_out/raw/fastqc_out_combined
+
+#For clarity you should rename the files when using this approach
+mv fastqc_out/raw/fastqc_out_combined/stdin_fastqc.html fastqc_out/raw/fastqc_out_combined/combined_fastqc.html  
+mv fastqc_out/raw/fastqc_out_combined/stdin_fastqc.zip fastqc_out/raw/fastqc_out_combined/combined_fastqc.zip 
+
+# fastqc on each file
+fastqc --quiet -t $threads ${fastqDir}/*fastq -o fastqc_out/raw
+
+fi
+
+#Stitching paired-end reads
+$scriptDir/run_pear.pl -p $threads -o stitched_reads $fastqDir/*fastq
+
+# fastqc on stiched reads
+mkdir fastqc_out/stitched_reads
+mkdir fastqc_out/stitched_reads/fastqc_out_combined
+#fastqc -t $threads stitched_reads/*.assembled.fastq -o fastqc_out/stitched_reads
+cat stitched_reads/*.assembled.fastq | fastqc -t $threads stdin -o fastqc_out/stitched_reads/fastqc_out_combined
+
+mv fastqc_out/stitched_reads/fastqc_out_combined/stdin_fastqc.html fastqc_out/stitched_reads/fastqc_out_combined/combined_fastqc.html
+mv fastqc_out/stitched_reads/fastqc_out_combined/stdin_fastqc.zip fastqc_out/stitched_reads/fastqc_out_combined/combined_fastqc.zip
+
+# subsample for initial run
+#mkdir stitched_reads_sub10k
+#for f in  stitched_reads/*.assembled*fastq;
+#do ~/programs/seqtk/seqtk sample $f 10000 > stitched_reads_sub10k/$(basename $f | sed 's/.fastq//')10k.fastq
+#done
+
+
+# Filtering reads by length and quality
+mkdir filtered_reads
+for f in stitched_reads/*.assembled.fastq;
+do
+java -classpath ~/programs/trimmomatic/Trimmomatic-0.32/trimmomatic-0.32.jar org.usadellab.trimmomatic.TrimmomaticSE -threads $threads -phred33 $f filtered_reads/$(basename $f | sed 's/.fastq//')_trim.fastq SLIDINGWINDOW:3:30 MINLEN:90
+done
+
+mkdir fastqc_out/filtered_reads/
+mkdir fastqc_out/filtered_reads/fastqc_out_combined
+#fastqc -t 1 filtered_reads/*.fastq -o fastqc_out/filtered_reads/
+cat filtered_reads/*.fastq | fastqc -t $threads stdin -o fastqc_out/filtered_reads/fastqc_out_combined
+
+mv fastqc_out/filtered_reads/fastqc_out_combined/stdin_fastqc.html fastqc_out/filtered_reads/fastqc_out_combined/combined_fastqc.html
+mv fastqc_out/filtered_reads/fastqc_out_combined/stdin_fastqc.zip fastqc_out/filtered_reads/fastqc_out_combined/combined_fastqc.zip
+
+
+# Conversion to FASTA 
+$scriptDir/run_fastq_to_fasta.pl -p $threads -o fasta_files filtered_reads/*fastq
+ 
+################################
+# no chimera removal
+# prep for QIIME
+mappingFileKeepChimeras=$workDir/fasta_files/mappingFileKeepChimeras
+$scriptDir/create_qiime_map.pl $workDir/fasta_files/*fasta > $mappingFileKeepChimeras
+add_qiime_labels.py -i $workDir/fasta_files/ -m $mappingFileKeepChimeras -c FileInput -o $workDir/combined_fasta-keep_chimeras/
+
+# do clustering
+pick_open_reference_otus.py -i $workDir/combined_fasta-keep_chimeras/combined_seqs.fna -o $workDir/clustering_keepChimeras/ -p clustering_params.txt -m sortmerna_sumaclust -v --min_otu_size 1 --reference_fp $refFasta
+
+# remove OTUs with less than 0.1% of the reads (given that 0.1% is the estimated amount of sample bleed-through between runs on the Illumina Miseq)
+$scriptDir/remove_low_confidence_otus.py -i clustering_keepChimeras/otu_table_mc1_w_tax_no_pynast_failures.biom -o clustering_keepChimeras//otu_table_high_conf.biom
+##################################
+
+# Removal of chimeric reads
+$scriptDir/chimera_filter.pl -type 1 -thread $threads -db $rdpRefUDB fasta_files/*fasta
+
+# prep for QIIME
+$scriptDir/create_qiime_map.pl $workDir/non_chimeras/*fasta > $mappingFileNonChimeras
+add_qiime_labels.py -i non_chimeras/ -m $mappingFileNonChimeras -c FileInput -o combined_fasta-non_chimeras/ 
+
+
+
+# do clustering
+pick_open_reference_otus.py -i $workDir/combined_fasta-non_chimeras/combined_seqs.fna -o $workDir/clustering_rmChimeras/ -p $workDir/clustering_params.txt -m sortmerna_sumaclust -v --min_otu_size 1 --reference_fp $refFasta
+
+# remove OTUs with less than 0.1% of the reads (given that 0.1% is the estimated amount of sample bleed-through between runs on the Illumina Miseq)
+$scriptDir/remove_low_confidence_otus.py -i clustering_rmChimeras//otu_table_mc1_w_tax_no_pynast_failures.biom -o clustering_rmChimeras/otu_table_high_conf.biom
+
+# get OTU count and read count summaries
+for f in clustering*/*.biom;
+do
+biom summarize-table -i $f  -o ${f}_summary.txt
+done
+
+# rarefaction
+mkdir final_otu_tables
+single_rarefaction.py -i clustering_rmChimeras//otu_table_high_conf.biom -o final_otu_tables/otu_table-rmChimeraRefBased4k.biom -d 4000
+single_rarefaction.py -i clustering_keepChimeras/otu_table_high_conf.biom -o final_otu_tables/otu_table-keepChimera4k.biom -d 4000
+single_rarefaction.py -i clustering_rmChimeras//otu_table_high_conf.biom -o final_otu_tables/otu_table-rmChimeraRefBased10k.biom -d 10000 
+single_rarefaction.py -i clustering_keepChimeras/otu_table_high_conf.biom -o final_otu_tables/otu_table-keepChimera10k.biom  -d 10000
+
+echo "Make JSON version of biom file for phyloseq"
+for f in $workDir/clustering*/*.biom;
+do
+biom convert -i $f -o $(echo $f | sed 's/.biom$//')_json.biom  --table-type="OTU table" --to-json
+done
+
+for f in $workDir/final_otu_tables/*.biom;
+do
+biom convert -i $f -o $(echo $f | sed 's/.biom$//')_json.biom  --table-type="OTU table" --to-json
+done
+
+
+
+# calculate beta diversity
+beta_diversity.py -i $workDir/clustering_rmChimeras/ -m bray_curtis -o beta_div
+beta_diversity.py -i $workDir/clustering_keepChimeras/ -m bray_curtis -o beta_div
+beta_diversity.py -i $workDir/final_otu_tables/ -m bray_curtis -o beta_div_rare
+
+# calculate alpha diversity
+#alpha_diversity.py -i $workDir/clustering/ -m chao1,PD_whole_tree -o alpha_div -t $workDir/clustering/rep_set.tre
+#alpha_diversity.py -i $workDir/final_otu_tables/  -m chao1,PD_whole_tree -o alpha_div_rare -t $workDir/clustering/rep_set.tre
