@@ -9,9 +9,9 @@
 fastqDir=/home.westgrid/thea/frogProject/qiimeAll/pilotNatMetPescWEC2/inputFiles
 workDir=/home.westgrid/thea/frogProject/qiimeAll/pilotNatMetPescWEC2
 
-scriptDir=~/programs/microbiome_helper
+scriptDir=~/programs/microbiome_helper/v20170118
 
-rdpRefUDB=/home.westgrid/thea/databases/ribosomal/RDP/trainset14_032015.rdp/trainset14_032015.rdp.fasta.udb
+rdpRefUDB=/home.westgrid/thea/databases/ribosomal/RDP/trainset14_032015.rdp/trainset14_032015.rdp.fasta
 
 refFasta=/home.westgrid/thea/programs/anaconda/lib/python2.7/site-packages/qiime_default_reference/gg_13_8_otus/rep_set/97_otus.fasta
 refTaxa=/home.westgrid/thea/programs/anaconda/lib/python2.7/site-packages/qiime_default_reference/gg_13_8_otus/taxonomy/97_otu_taxonomy.txt
