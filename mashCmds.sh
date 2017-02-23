@@ -1,21 +1,25 @@
 
-dataType=VcDNA
-#dataType="Bac"
+#dataType=VDNA
+dataType="Bac"
 
-str=assRNA_sub10k_min100bp #sub45k_exact100bp
+#str=assDNA-PCvsViralGenomes_sub33k_min70bp
+str=sub418k_exact100bp
 
-homeDir=/home.westgrid/thea/watershed/viralShotgunHiSeq/$dataType/mash/$str
-#inputFiles=/home.westgrid/thea/watershed/viralShotgunHiSeq/$dataType/mash/$str/inputFastaFiles_sub45kExact100bp.txt
-#inputFiles=/home.westgrid/thea/watershed/viralShotgunHiSeq/$dataType/mash/$str/inputFastaFiles_$str.txt
-inputFiles=/home.westgrid/thea/watershed/viralShotgunHiSeq/$dataType/mash/$str/inputFastaFiles.txt
+# viral
+#homeDir=/home.westgrid/thea/watershed/viralShotgunHiSeq/$dataType/mash/$str
+#inputFiles=/home.westgrid/thea/watershed/viralShotgunHiSeq/$dataType/mash/$str/inputFastaFiles.txt
 
-#homeDir=/home.westgrid/thea/watershed/bacterialShotgunMiSeq/mash/$str
-#inputFiles=/home.westgrid/thea/watershed/bacterialShotgunMiSeq/mash/$str/inputFastaFiles_$str.txt
+##inputFiles=/home.westgrid/thea/watershed/viralShotgunHiSeq/$dataType/mash/$str/inputFastaFiles_sub45kExact100bp.txt
+##inputFiles=/home.westgrid/thea/watershed/viralShotgunHiSeq/$dataType/mash/$str/inputFastaFiles_$str.txt
+
+# bacterial
+homeDir=/home.westgrid/thea/watershed/bacterialShotgunMiSeq/mash/$str
+inputFiles=/home.westgrid/thea/watershed/bacterialShotgunMiSeq/mash/$str/inputFastaFiles_$str.txt
 
 sketchSize=1000000
-sketchStr="s1G"
-kmer=32
-refName=$dataType"_"$str"_"k$kmer"_"$sketchStr
+sketchStr="s1G" #"s1G_min2" -u
+kmer=21
+refName=$dataType"_"$str"_"k$kmer"_"$sketchStr"_min2"
 
 
 
@@ -28,7 +32,8 @@ mkdir $outdir
 cd $outdir
 
 echo "sketch size = $sketchSize; kmer length = $kmer" > $outdir.out
-~/programs/mash/mash sketch -l $inputFiles -o $refName -s $sketchSize -k $kmer >> $outdir.out
+#~/programs/mash/mash sketch -l $inputFiles -o $refName -s $sketchSize -k $kmer >> $outdir.out
+~/programs/mash/mash sketch -m 2 -l $inputFiles -o $refName -s $sketchSize -k $kmer >> $outdir.out
 
 #rm $refName-distances.txt
 ~/programs/mash/mash dist $refName.msh $refName.msh > $refName-distances.txt

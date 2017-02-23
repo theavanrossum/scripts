@@ -8,10 +8,10 @@
 # need Xming to make plots
 
 
-mappingFile=/home.westgrid/thea/frogProject/qiimeAll/pilotNatMetPesc-228-252/masterMappingFile_228-252_corrected_pilotNatMetPesc.txt
-workDir=/home.westgrid/thea/frogProject/qiimeAll/pilotNatMetPesc-228-252
+mappingFile=/home.westgrid/thea/CHILD/compare16S/data/stuart/mappingFileStuart_R1.txt
+workDir=/home.westgrid/thea/CHILD/compare16S/qiime/myOldProtocol/R1noQC
 referenceDB=/home.westgrid/thea/databases/qiime/greenGenes/gg_13_8_otus/rep_set/97_otus.fasta
-paramFile=/home.westgrid/thea/frogProject/qiimeAll/qiimeParams.txt
+paramFile=/home.westgrid/thea/CHILD/compare16S/qiime/myOldProtocol/qiimeParams.txt
 
 echo "prog started at: `date`"
 
@@ -19,8 +19,8 @@ cd $workDir
 
 # Pre-processing
 echo "Check mapping file"
-#rm -rf mapping_output ; validate_mapping_file.py -m $mappingFile -o $workDir/mapping_output -v
-#cp $workDir/mapping_output/*_corrected.txt $mappingFile
+rm -rf mapping_output ; validate_mapping_file.py -m $mappingFile -o $workDir/mapping_output -v
+mappingFile=$workDir/mapping_output/*_corrected.txt
 
 echo "Make links to input sequences"
 inputDir="$workDir/inputReads"

@@ -1,7 +1,8 @@
 #!/bin/bash
 
 NUM_FIELDS=9
-MEGAN_FILE=/home.westgrid/thea//watershed/viralShotgunHiSeq/VDNA/megan/002/002-UDS-VDNA.rap.0001.out-all.txt
+MEGAN_FILE=/home.westgrid/thea/watershed/HiSeq.GSC.20140506-all/VcDNA/megan/VcDNA.rap.ppp1.outv2-ex_All_contigToTaxa.txt
+#/home.westgrid/thea//watershed/viralShotgunHiSeq/VDNA/megan/002/002-UDS-VDNA.rap.0001.out-all.txt
 
 #cut -f1 $MEGAN_FILE | awk 'BEGIN{print "Contigs"}{print $0}' > $MEGAN_FILE.contigs.txt
 cat $MEGAN_FILE | cut -f 2 | sed 's/"//g'| sed 's/;$//' | awk '

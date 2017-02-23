@@ -1,15 +1,21 @@
 
-
 ### align reads to reference cluster sequences
-workDir=/home.westgrid/thea/watershed/HiSeq.GSC.20140506-all/VDNA/proteinClusters/deNovo
+
+workDir=/home.westgrid/thea/watershed/HiSeq.GSC.20140506-all/VDNA/proteinClusters/deNovo/alnReadsVsRepSeqs
 refDir=/home.westgrid/thea/watershed/HiSeq.GSC.20140506-all/VDNA/proteinClusters/deNovo/clusterReferenceSeqs
+
+#fastaDir=/home.westgrid/thea/watershed/HiSeq.GSC.20140506-all/VcDNA/reads/postQC-RemovedRRNA/fromAll
+fastaDir=/home.westgrid/thea/watershed/HiSeq.GSC.20140506-all/VDNA/reads/postqc_min70
+
+nproc=12
+
+inputFile=$refDir/VDNA_deNovo.clstr.repSeqs.dnaViral.fa
+diamondDatabaseName=VDNA_deNovo.clstr.repSeqs.dnaViral
+diamondDatabase=$refDir/$diamondDatabaseName.dmnd
+
 #in1=$refDir/tovAllVsVDNA_min30_clusterMatches.repSeqs.fa
 #in2=$refDir/tovAllVsVDNA_min30-deNovoLeftOver.repSeqs.fa
 #diamondDatabaseName=VDNA_TOV_and_deNovoLeftOver.repSeqs
-
-inputFile=$refDir/VDNA_deNovoP.repSeqs.fa
-diamondDatabaseName=VDNA_deNovoP.repSeqs
-diamondDatabase=$refDir/$diamondDatabaseName.dmnd
 
 
 cd $refDir
@@ -19,11 +25,6 @@ echo "building diamond db"
 /usr/local/bin/diamond makedb -p 4 --in $inputFile -d $diamondDatabaseName
 
 cd $workDir
-
-#fastaDir=/home.westgrid/thea/watershed/HiSeq.GSC.20140506-all/VcDNA/reads/postQC-RemovedRRNA/fromAll
-fastaDir=/home.westgrid/thea/watershed/HiSeq.GSC.20140506-all/VDNA/reads/postqc_min70
-
-nproc=4
 
 echo "staring searches"
 

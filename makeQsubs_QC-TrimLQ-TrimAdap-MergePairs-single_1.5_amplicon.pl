@@ -35,13 +35,13 @@ my $windowLength = 5;
 my $minQualityLeading = 20;
 
 my $minLength = 100;
-my $isGzipped = 1;
+my $isGzipped = 0;
 
 my $runPrePrimerTrim = 1;
 my $runPreMinLength = 1;
 
-my $renameReadsScript = "renameReads.pl"; # For MiSeq
-#my $renameReadsScript = "renameReadsHiSeq.pl";
+#my $renameReadsScript = "renameReads.pl"; # For MiSeq
+my $renameReadsScript = "renameReadsHiSeq.pl";
 
 my $jobName;
 

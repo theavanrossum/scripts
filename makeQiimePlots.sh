@@ -1,9 +1,10 @@
-num=2997
-typeField="CollectedFrom"
+num=50000
+typeField="Visit"
 
-mappingFile="mappingFile_pilot-WEC_min200.txt"
-inputOTUtable="otus/otu_table.biom"
-inputRepSetTre="otus/rep_set.tre"
+cd "/home.westgrid/thea/CHILD/compare16S/qiime/myOldProtocol/R1noQC/"
+mappingFile="/home.westgrid/thea/CHILD/compare16S/qiime/myOldProtocol/R1noQC/mapping_output/mappingFileStuart_R1_corrected.txt"
+inputOTUtable="/home.westgrid/thea/CHILD/compare16S/qiime/myOldProtocol/R1noQC/otus/otu_table.biom"
+inputRepSetTre="/home.westgrid/thea/CHILD/compare16S/qiime/myOldProtocol/R1noQC/otus/rep_set.tre"
 
 #OTU Heatmap
 echo "### OTU Heatmap"
