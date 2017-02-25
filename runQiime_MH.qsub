@@ -99,7 +99,7 @@ add_qiime_labels.py -i $workDir/fasta_files/ -m $mappingFileKeepChimeras -c File
 pick_open_reference_otus.py -i $workDir/combined_fasta-keep_chimeras/combined_seqs.fna -o $workDir/clustering_keepChimeras/ -p clustering_params.txt -m sortmerna_sumaclust -v --min_otu_size $minOtuSize --reference_fp $refFasta
 
 # remove OTUs with less than 0.1% of the reads (given that 0.1% is the estimated amount of sample bleed-through between runs on the Illumina Miseq)
-$scriptDir/remove_low_confidence_otus.py -i clustering_keepChimeras/otu_table_mc$(minOtuSize)_w_tax_no_pynast_failures.biom -o clustering_keepChimeras//otu_table_high_conf.biom
+$scriptDir/remove_low_confidence_otus.py -i clustering_keepChimeras/otu_table_mc${minOtuSize}_w_tax_no_pynast_failures.biom -o clustering_keepChimeras//otu_table_high_conf.biom
 
 # for phyloseq so i can et started analysis without waiting for chimera removal
 biom convert -i clustering_keepChimeras//otu_table_high_conf.biom -o clustering_keepChimeras//otu_table_high_conf_json.biom  --table-type="OTU table" --to-json
@@ -108,7 +108,7 @@ biom convert -i clustering_keepChimeras//otu_table_high_conf.biom -o clustering_
 # RUN QIIME WITH CHIMERAS REMOVED
 
 # Removal of chimeric reads
-$scriptDir/chimeraFilter.pl -type 1 -thread $threads -db $rdpRefUDB fasta_files/*fasta
+$scriptDir/chimera_filter.pl -type 1 -thread $threads -db $rdpRefUDB fasta_files/*fasta
 
 # prep for QIIME
 mappingFileNonChimeras=$workDir/non_chimeras/mappingFile_nonChimeras.txt
@@ -119,7 +119,7 @@ add_qiime_labels.py -i non_chimeras/ -m $mappingFileNonChimeras -c FileInput -o 
 pick_open_reference_otus.py -i $workDir/combined_fasta-non_chimeras/combined_seqs.fna -o $workDir/clustering_rmChimeras/ -p $workDir/clustering_params.txt -m sortmerna_sumaclust -v --min_otu_size $minOtuSize --reference_fp $refFasta
 
 # remove OTUs with less than 0.1% of the reads (given that 0.1% is the estimated amount of sample bleed-through between runs on the Illumina Miseq)
-$scriptDir/remove_low_confidence_otus.py -i clustering_rmChimeras//otu_table_mc$(minOtuSize)_w_tax_no_pynast_failures.biom -o clustering_rmChimeras/otu_table_high_conf.biom
+$scriptDir/remove_low_confidence_otus.py -i clustering_rmChimeras//otu_table_mc${minOtuSize}_w_tax_no_pynast_failures.biom -o clustering_rmChimeras/otu_table_high_conf.biom
 
 ##################################
 ##     PROCESSING BIOM FILES    ##
